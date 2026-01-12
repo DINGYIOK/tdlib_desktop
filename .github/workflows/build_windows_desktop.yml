@@ -29,7 +29,12 @@ jobs:
           $env:CGO_ENABLED = "1"
           $env:CGO_CFLAGS  = "-I$root/tdlib-windows-amd64-bin/include"
           $env:CGO_LDFLAGS = "-L$root/tdlib-windows-amd64-bin/lib -ltdjson"
-      
+          
+          $env:PATH = "$root/tdlib-windows-amd64-bin/bin;$root/openssl/bin;$env:PATH"
+
+          # 关键：让构建阶段能找到 tdjson.dll
+          $env:PATH = "$root/tdlib-windows-amd64-bin/bin;$env:PATH"
+    
           wails build -platform windows/amd64 -trimpath -ldflags "-s -w"
 
       - name: Copy runtime DLLs
