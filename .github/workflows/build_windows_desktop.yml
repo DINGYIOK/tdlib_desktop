@@ -13,17 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 如果你 TDLib 是另一个 workflow 产物
-      - name: Download TDLib SDK
-        uses: actions/download-artifact@v4
-        with:
-          name: tdlib-windows-sdk
-          path: C:\tdlib
-
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.23.1'
 
       - name: Setup Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
