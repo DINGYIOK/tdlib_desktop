@@ -49,3 +49,19 @@ jobs:
           
           # 执行复制
           Copy-Item -Path $sourceDll -Destination $destDir -Force
+          # 前面的步骤保持不变...
+
+      - name: Copy runtime DLLs
+        shell: powershell
+        run: |
+         $root = $env:GITHUB_WORKSPACE
+         Copy-Item "$root/tdlib-windows-amd64-bin/bin/tdjson.dll" -Destination "build/bin/"
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Wails-Windows  # 下载时的压缩包名称
+          path: |
+            build/bin/*.exe
+            build/bin/*.dll
+          # 这样会把 exe 和它依赖的 tdjson.dll 一起打包下载
