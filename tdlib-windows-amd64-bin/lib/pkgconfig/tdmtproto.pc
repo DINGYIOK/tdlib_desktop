@@ -1,0 +1,10 @@
+prefix=D:/a/build_tdlib/tdlib_windows
+
+Name: tdmtproto
+Description: Telegram Library - MTProto implementation
+Version: 1.8.60
+
+CFlags: -I"${prefix}/include"
+Libs: -L"${prefix}/lib" -ltdmtproto
+Requires.private: tdactor tdnet tdutils
+Libs.private: -l"D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/libcrypto" -l"D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/zlib" -lws2_32 -lMswsock -lCrypt32

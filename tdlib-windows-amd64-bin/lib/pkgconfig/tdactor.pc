@@ -1,0 +1,9 @@
+prefix=D:/a/build_tdlib/tdlib_windows
+
+Name: tdactor
+Description: Telegram Library - Actor
+Version: 1.8.60
+
+CFlags: -I"${prefix}/include"
+Libs: -L"${prefix}/lib" -ltdactor
+Requires.private: tdutils

@@ -1,0 +1,9 @@
+build/bin
+node_modules
+frontend/dist
+tdlib-macos-arm64-bin/
+tdlib-windows-amd64-bin/lib/tdcore.lib
+tdlib-windows-amd64-bin/lib/tdjson_private.lib
+tdlib-windows-amd64-bin/lib/tdapi.lib
+.tdlibs/
+db/account.db

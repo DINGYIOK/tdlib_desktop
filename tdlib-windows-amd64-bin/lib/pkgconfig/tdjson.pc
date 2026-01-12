@@ -1,0 +1,9 @@
+prefix=D:/a/build_tdlib/tdlib_windows
+
+Name: tdjson
+Description: Telegram Library - JSON interface (shared)
+Version: 1.8.60
+
+CFlags: -I"${prefix}/include"
+Libs: -L"${prefix}/lib" -ltdjson
+Requires.private: tdjson_private
