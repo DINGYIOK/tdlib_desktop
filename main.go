@@ -18,7 +18,7 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "财财客户端",
-		Width:  1024,
+		Width:  1100,
 		Height: 700,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
@@ -28,9 +28,9 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
-		Debug: options.Debug{
-			OpenInspectorOnStartup: true,
-		},
+		//Debug: options.Debug{
+		//	OpenInspectorOnStartup: true,
+		//},
 	})
 
 	if err != nil {
