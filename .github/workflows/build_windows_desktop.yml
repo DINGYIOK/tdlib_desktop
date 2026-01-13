@@ -35,7 +35,9 @@ jobs:
           # 关键：让构建阶段能找到 tdjson.dll
           $env:PATH = "$root/tdlib-windows-amd64-bin/bin;$env:PATH"
     
-          wails build -platform windows/amd64 -trimpath -ldflags "-s -w"
+          # wails build -platform windows/amd64 -trimpath -ldflags "-s -w"
+          wails build -platform windows/amd64 -debug
+
 
       - name: Copy runtime DLLs (TDLib & OpenSSL)
         shell: powershell
