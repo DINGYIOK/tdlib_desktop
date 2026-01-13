@@ -8,3 +8,4 @@ tdlib-windows-amd64-bin/lib/tdapi.lib
 .tdlibs/
 db/account.db
 build/
+tdlib-windows-amd64-bin11/

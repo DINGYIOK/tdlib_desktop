@@ -19,7 +19,7 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 set(_cmake_targets_defined "")
 set(_cmake_targets_not_defined "")
 set(_cmake_expected_targets "")
-foreach(_cmake_expected_target IN ITEMS Td::tdutils Td::tdactor Td::tdnet Td::tdsqlite Td::tddb Td::tde2e Td::tdjson_static Td::TdJsonStatic Td::tdjson_private Td::tdcore Td::tdmtproto Td::tdclient Td::TdStatic Td::tdapi)
+foreach(_cmake_expected_target IN ITEMS Td::tdutils Td::tde2e Td::tdactor Td::tdnet Td::tdsqlite Td::tddb Td::tdjson_static Td::TdJsonStatic Td::tdjson_private Td::tdcore Td::tdmtproto Td::tdclient Td::TdStatic Td::tdapi)
   list(APPEND _cmake_expected_targets "${_cmake_expected_target}")
   if(TARGET "${_cmake_expected_target}")
     list(APPEND _cmake_targets_defined "${_cmake_expected_target}")
@@ -62,6 +62,15 @@ set_target_properties(Td::tdutils PROPERTIES
   INTERFACE_LINK_LIBRARIES "\$<\$<NOT:\$<CONFIG:DEBUG>>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/libcrypto.lib>;\$<\$<CONFIG:DEBUG>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/debug/lib/libcrypto.lib>;\$<\$<NOT:\$<CONFIG:DEBUG>>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/zlib.lib>;\$<\$<CONFIG:DEBUG>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/debug/lib/zlibd.lib>;\$<LINK_ONLY:ws2_32>;\$<LINK_ONLY:Mswsock>;\$<LINK_ONLY:Crypt32>;\$<\$<NOT:\$<CONFIG:DEBUG>>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/zlib.lib>;\$<\$<CONFIG:DEBUG>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/debug/lib/zlibd.lib>;\$<LINK_ONLY:ws2_32>;\$<LINK_ONLY:Mswsock>;\$<LINK_ONLY:Normaliz>;\$<LINK_ONLY:psapi>;\$<LINK_ONLY:shell32>"
 )
 
+# Create imported target Td::tde2e
+add_library(Td::tde2e STATIC IMPORTED)
+
+set_target_properties(Td::tde2e PROPERTIES
+  INTERFACE_COMPILE_FEATURES "cxx_std_17"
+  INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
+  INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:Td::tdutils>;\$<\$<NOT:\$<CONFIG:DEBUG>>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/libcrypto.lib>;\$<\$<CONFIG:DEBUG>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/debug/lib/libcrypto.lib>;\$<\$<NOT:\$<CONFIG:DEBUG>>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/zlib.lib>;\$<\$<CONFIG:DEBUG>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/debug/lib/zlibd.lib>"
+)
+
 # Create imported target Td::tdactor
 add_library(Td::tdactor STATIC IMPORTED)
 
@@ -88,14 +97,6 @@ add_library(Td::tddb STATIC IMPORTED)
 
 set_target_properties(Td::tddb PROPERTIES
   INTERFACE_LINK_LIBRARIES "Td::tdactor;Td::tdutils;\$<LINK_ONLY:Td::tdsqlite>"
-)
-
-# Create imported target Td::tde2e
-add_library(Td::tde2e STATIC IMPORTED)
-
-set_target_properties(Td::tde2e PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "/.."
-  INTERFACE_LINK_LIBRARIES "Td::tdutils;\$<\$<NOT:\$<CONFIG:DEBUG>>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/libcrypto.lib>;\$<\$<CONFIG:DEBUG>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/debug/lib/libcrypto.lib>;\$<\$<NOT:\$<CONFIG:DEBUG>>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/lib/zlib.lib>;\$<\$<CONFIG:DEBUG>:D:/a/build_tdlib/build_tdlib/vcpkg/installed/x64-windows/debug/lib/zlibd.lib>"
 )
 
 # Create imported target Td::tdjson_static
