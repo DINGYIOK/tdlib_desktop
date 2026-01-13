@@ -37,20 +37,6 @@ jobs:
     
           wails build -platform windows/amd64 -trimpath -ldflags "-s -w"
 
-      - name: Copy runtime DLLs
-        shell: powershell
-        run: |
-          $root = $env:GITHUB_WORKSPACE
-          # 使用 Join-Path 是 PowerShell 最标准的路径拼接方式，能自动处理斜杠
-          $sourceDll = Join-Path $root "tdlib-windows-amd64-bin/bin/tdjson.dll"
-          $destDir = Join-Path $root "build/bin/"
-          
-          Write-Host "正在从 $sourceDll 复制到 $destDir"
-          
-          # 执行复制
-          Copy-Item -Path $sourceDll -Destination $destDir -Force
-          # 前面的步骤保持不变...
-
       - name: Copy runtime DLLs (TDLib & OpenSSL)
         shell: powershell
         run: |
