@@ -150,13 +150,14 @@ func (a *App) AccountSendCode(phone string) error {
 		return fmt.Errorf("Phone:%s 请勿重复登陆", phone)
 	}
 
-	service := account_client.CreateTelegramService(phone, a.db) // 创建
-	err = service.InitializeClient()                             // 初始化客户端
-	if err != nil {
-		return fmt.Errorf("Phone:%s 初始化失败", phone)
-	}
-
-	a.sm.AddService(phone, service)
+	go func() {
+		service := account_client.CreateTelegramService(phone, a.db) // 创建
+		err = service.InitializeClient()                             // 初始化客户端
+		if err != nil {
+			slog.Error(fmt.Sprintf("Phone:%s 初始化失败", phone))
+		}
+		a.sm.AddService(phone, service)
+	}()
 	time.Sleep(2 * time.Second) // 等等发送验证码的状态
 	return nil
 }
@@ -219,19 +220,17 @@ func (a *App) AccountDelete(id uint) error {
 		return fmt.Errorf("数据库查询客户端ID:%d 错误:%w", id, err)
 	}
 
+	// 如果存在就删除
 	service, exists := a.sm.GetService(telegramClientAccount.Phone) // 在内存中根据号码读取客户端
-	if !exists {                                                    // 如果没有返回错误
-		return fmt.Errorf("读取客户端Phone:%s 不存在", telegramClientAccount.Phone)
+	if exists {                                                     // 如果没有返回错误
+		// 退出客户端
+		err = service.CloneAndLogOut()
+		if err != nil {
+			return fmt.Errorf("删除客户端Phone:%s 错误:%w", telegramClientAccount.Phone, err)
+		}
+		// 在总管理中清理
+		a.sm.DeleteService(service.Phone)
 	}
-
-	// 退出客户端
-	err = service.CloneAndLogOut()
-	if err != nil {
-		return fmt.Errorf("删除客户端Phone:%s 错误:%w", telegramClientAccount.Phone, err)
-	}
-
-	// 在总管理中清理
-	a.sm.DeleteService(service.Phone)
 
 	// 在数据库里删除 软删除
 	err = a.db.Unscoped().Model(&model.TelegramClientAccount{}).Where("id = ?", id).Delete(&id).Error

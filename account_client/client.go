@@ -21,53 +21,6 @@ type TelegramServiceMessage struct {
 	Text   string `json:"text"`
 }
 
-type TelegramProxy struct {
-	Server   string
-	Port     int32
-	Username string
-	Password string
-}
-
-// GetProxy 获取代理 禁用
-func _GetProxy(db *gorm.DB) (string, *TelegramProxy, error) {
-	var setting model.TelegramClientSettings
-	err := db.Model(&model.TelegramClientSettings{}).Where("key = ?", "proxy_count").First(&setting).Error
-	if err != nil {
-		return "", nil, fmt.Errorf("查询代理数量时错误:%w", err)
-	}
-
-	proxyCount := cast.ToInt(setting.Value) // 代理数量 默认50
-
-	var clientSettings []model.TelegramClientSettings
-	err = db.Model(&model.TelegramClientSettings{}).Where("description = ?", "代理地址").Find(&clientSettings).Error // 查询出所有的代理地址
-	if err != nil {
-		return "", nil, fmt.Errorf("查询所有代理时错误:%w", err)
-	}
-	for _, clientSetting := range clientSettings { // 遍历所有设置中的代理
-		settingProxyCount := cast.ToInt(clientSetting.Value) //
-		if settingProxyCount <= proxyCount {
-			// Key 才是链接
-			proxyURL := strings.Split(clientSetting.Key, ":")
-			// ip:port:acc:password
-			if len(proxyURL) != 4 {
-				return "", nil, fmt.Errorf("代理链接拆分错误:%w", err)
-			}
-			server := proxyURL[0]
-			port := proxyURL[1]
-			username := proxyURL[2]
-			password := proxyURL[3]
-			// 只要找到代理数量小于设置数量的就返回
-			return clientSetting.Key, &TelegramProxy{
-				Server:   server,
-				Port:     cast.ToInt32(port),
-				Username: username,
-				Password: password,
-			}, nil
-		}
-	}
-	return "", nil, fmt.Errorf("没有可用代理链接，请后台添加")
-}
-
 type TelegramService struct {
 	Phone         string         // 手机号
 	UserID        int64          // 用户 ID
@@ -110,6 +63,7 @@ func CreateTelegramService(phone string, db *gorm.DB) *TelegramService {
 func (s *TelegramService) InitializeClient() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	// 1. 设置路径
 	path := fmt.Sprintf(".tdlibs/%s", strings.ReplaceAll(s.Phone, "+", ""))
 	s.Path = path
@@ -165,16 +119,15 @@ func (s *TelegramService) InitializeClient() error {
 	// 4. 使用库提供的 ClientAuthorizer（关键！只创建一次）
 	authorizer := client.ClientAuthorizer(tdlibParameters)
 	s.authorizer = authorizer
-	// 5. 保存 channel 引用（这些字段是公开的！）
-	// 通过反射或类型断言获取（因为返回类型虽然是私有结构体，但字段是导出的）
-	// 实际上，我们可以直接使用，因为 Go 允许访问未导出类型的导出字段
+
 	s.PhoneChannel = authorizer.PhoneNumber
 	s.CodeChannel = authorizer.Code
 	s.PasswordChannel = authorizer.Password
 	s.StateChannel = authorizer.State
 
-	tools.Go(fmt.Sprintf("Phone:%s 登陆", s.Phone), s.handleAuthStates) // 登陆
 	tools.Go(fmt.Sprintf("Phone:%s 创建客户端", s.Phone), s.CreateClient)  // 创建客户端
+	tools.Go(fmt.Sprintf("Phone:%s 登陆", s.Phone), s.handleAuthStates) // 登陆
+
 	// 8. 启动状态监听（类似 CliInteractor 的逻辑）
 	return nil
 }
@@ -183,6 +136,7 @@ func (s *TelegramService) InitializeClient() error {
 func (s *TelegramService) CreateClient() {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+
 	// 6. 配置日志
 	logStream := func(tdlibClient *client.Client) {
 		tdlibClient.SetLogStream(&client.SetLogStreamRequest{
@@ -196,17 +150,6 @@ func (s *TelegramService) CreateClient() {
 	logVerbosity := func(tdlibClient *client.Client) {
 		tdlibClient.SetLogVerbosityLevel(&client.SetLogVerbosityLevelRequest{NewVerbosityLevel: 1})
 	}
-	//addProxy := func(tdlibClient *client.Client) {
-	//	tdlibClient.AddProxy(&client.AddProxyRequest{
-	//		Server: s.Proxy.Server,
-	//		Port:   s.Proxy.Port,
-	//		Enable: true,
-	//		Type: &client.ProxyTypeSocks5{
-	//			Username: s.Proxy.Username,
-	//			Password: s.Proxy.Password,
-	//		},
-	//	})
-	//}
 
 	slog.Info("CreateClient: 开始创建客户端")
 	// 7. 创建客户端（使用同一个 authorizer！）
@@ -215,26 +158,6 @@ func (s *TelegramService) CreateClient() {
 		slog.Error(fmt.Sprintf("创建客户端 Phone:%s 错误:%s", s.Phone, err.Error()))
 		return
 	}
-
-	//slog.Debug(fmt.Sprintf("代理Proxy:%s", s.Proxy.Server))
-	//slog.Debug(fmt.Sprintf("代理Port:%d", s.Proxy.Port))
-	//slog.Debug(fmt.Sprintf("代理Name:%s", s.Proxy.Username))
-	//slog.Debug(fmt.Sprintf("代理Paws:%s", s.Proxy.Password))
-	// 194.33.62.127:8000:3ZyHfm:P14kns
-	// 设置代理 Socks5 IP
-	//_, err = tdlibClient.AddProxy(&client.AddProxyRequest{
-	//	Server: s.Proxy.Server,
-	//	Port:   s.Proxy.Port,
-	//	Enable: true,
-	//	Type: &client.ProxyTypeSocks5{
-	//		Username: s.Proxy.Username,
-	//		Password: s.Proxy.Password,
-	//	},
-	//})
-	//if err != nil {
-	//	slog.Error(fmt.Sprintf("设置客户端 Phone:%s 代理错误:%s", s.Phone, err.Error()))
-	//	return
-	//}
 
 	s.Client = tdlibClient        // 设置客户端
 	s.AuthStatus = true           // 设置登陆成功
@@ -254,6 +177,7 @@ func (s *TelegramService) CreateClient() {
 			LastName:      user.LastName,
 			TGUserId:      user.Id,
 			IsPremium:     user.IsPremium,
+			IsActive:      true,
 		}).Error
 	if err != nil {
 		slog.Error(fmt.Sprintf("更新 Phone:%s 账户信息错误:%s", s.Phone, err.Error()))
@@ -453,46 +377,6 @@ func (s *TelegramService) Update2Password(oldPassword string, newPassword string
 	}
 	return nil
 }
-
-// serviceListener 协程监听器
-//func (s *TelegramService) serviceListener() {
-//	slog.Info("开始实时监听 Telegram 事件...")
-//	for event := range s.Listener.Updates {
-//		switch update := event.(type) {
-//		case *client.UpdateNewMessage: // 收到新消息
-//			msg := update.Message
-//			switch content := msg.Content.(type) {
-//			case *client.MessageText: // 讲UserID和文本消息通过SSE传输给前端
-//				switch senderUser := msg.SenderId.(type) {
-//				case *client.MessageSenderUser:
-//					s.MessageChannel <- TelegramServiceMessage{ // 给到
-//						UserID: int(senderUser.UserId),
-//						Text:   content.Text.Text,
-//					}
-//				}
-//				slog.Info("收到文本消息", "来自", msg.SenderId, "文本", content.Text.Text)
-//			case *client.MessagePhoto:
-//				// slog.Info("收到图片消息", "图片信息", content.Caption.Text)
-//			}
-//		case *client.UpdateChatLastMessage: // 会话列表的最后一条消息变了（比如有人撤回消息，或者新消息置顶）
-//			// msg := update.LastMessage
-//			// switch content := msg.Content.(type) {
-//			// case *client.MessageText:
-//			// 	slog.Info("会话状态更新 收到文本消息", "来自", msg.SenderId, "文本", content.Text.Text)
-//			// case *client.MessagePhoto:
-//			// 	slog.Info("会话状态更新 收到图片消息", "图片信息", content.Caption.Text)
-//			// }
-//			// slog.Info("会话状态更新", "chat_id", update.ChatId)
-//		case *client.UpdateUserStatus: // 好友上线/下线
-//			// slog.Info("用户状态改变", "user_id", update.UserId, "status", update.Status.UserStatusType())
-//		case *client.UpdateConnectionState: // 网络连接状态（连接中、正在更新、就绪等）
-//			// slog.Info("网络状态", "state", update.State.ConnectionStateType())
-//		default:
-//			// 暂时不处理的其他数千种更新类型
-//			// slog.Debug("收到其他更新", "type", event.GetType())
-//		}
-//	}
-//}
 
 // SubmitVerificationCode 提交验证码
 func (s *TelegramService) SubmitVerificationCode(code string) error {

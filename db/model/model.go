@@ -20,7 +20,7 @@ type TelegramClientAccount struct {
 	LastName         string `gorm:"column:last_name;comment:电报姓"`
 	Username         string `gorm:"column:username;comment:电报用户名"`
 	TGUserId         int64  `gorm:"column:tg_user_id;index;comment:电报唯一UID"`
-	IsActive         bool   `gorm:"column:is_active;default:true;comment:是否启用"`
+	IsActive         bool   `gorm:"column:is_active;default:false;comment:是否启用"`
 	IsUpdatePassword bool   `gorm:"column:is_update_password;index;default:false;comment:是否更改过密码"` // 增加索引
 	//IsSpamBot        bool       `gorm:"column:is_spambot;default:false;comment:是否触发过SpamBot机器人"`
 	PrivateCount  int        `gorm:"column:private_count;index;default:0;comment:私信次数/索引"`

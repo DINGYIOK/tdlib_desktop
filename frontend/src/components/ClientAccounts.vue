@@ -21,9 +21,6 @@ const showCard = ref(false); // 提示窗口状态
 const content = ref(""); // 提示窗口文字
 
 // 删除参数
-const deleteStatusText = ref("删除中..."); // 删除状态文本
-const showDeleteModal = ref(false); // 删除谷歌验证码窗口
-const deleteStatus = ref(false); // 删除按钮状态
 const deleteValueID = ref(0); // 要删除的ID
 const deleteCode = ref("");
 const deleteValuePhone = ref("");
@@ -68,67 +65,26 @@ const handleSearch = async () => {
     await store.searchPhoneAccount(keywordValue.value.replace("+", ""));
 };
 
-// 提示并保存要删除的BotID
-const handleDeleteValue = (id: number, phone: string) => {
-    deleteValuePhone.value = phone;
-    deleteValueID.value = id;
-    showDeleteModal.value = true;
-};
 
 // 确认删除
-const handleDelete = async () => {
-    deleteStatus.value = true;
-    const accountID = deleteValueID.value;
-    const phone = deleteValuePhone.value;
+const handleDelete = async (id: number, phone: string, is_active: boolean) => {
+
     try {
-        // 先出发点登陆
-        await store.triggerLogin(phone);
-        await store.accountDelete(accountID);
-        deleteStatusText.value = "删除成功";
+        if (is_active) {
+            // 先出发点登陆
+            await store.triggerLogin(phone);
+        }
+        await store.accountDelete(id);
+        showCard.value = true;
+        content.value = "删除成功✅";
+        await store.getAccounts();
+
     } catch (err) {
-        deleteStatusText.value = "删除失败";
+        showCard.value = true;
+        content.value = `删除失败❌ ${err}`;
     }
-    setTimeout(async () => {
-        showDeleteModal.value = false;
-        deleteStatus.value = false;
-        await store.getAccounts(1, 10);
-    }, 1500);
 };
 
-
-// 根据删除动态返回按钮样式
-const deleteBtnClass = computed(() => {
-    switch (deleteStatusText.value) {
-        case "删除成功":
-            return "btn btn-sm btn-success mt-4";
-        case "删除中":
-            return "btn btn-sm btn-warning mt-4";
-        case "删除失败":
-            return "btn btn-sm btn-error mt-4";
-        default:
-            return "btn btn-sm btn-neutral mt-4";
-    }
-});
-
-// 搜索字段计算属性
-// const keywordMatch = computed(() => {
-//     switch (keyword.value) {
-//         case "ID":
-//             return "id";
-//         case "名称":
-//             return "bot_name";
-//         case "机器人ID":
-//             return "bot_id";
-//         case "默认金额":
-//             return "amount";
-//         case "收款地址":
-//             return "address";
-//         case "启动端口":
-//             return "port";
-//         case "是否启用":
-//             return "is_active";
-//     }
-// });
 
 // 关闭提示弹窗
 const handleClose = () => {
@@ -147,14 +103,7 @@ watch([keywordValue], async ([newKeywordValue]) => {
 <template>
     <Tips v-if="showCard" :content="content" @close="handleClose"></Tips>
 
-    <ClientAccountLogin v-model:show="showLoginModal"></ClientAccountLogin>
-    <Verification v-model:show="showDeleteModal" title="请输入谷歌验证码">
-        <div class="join">
-            <input v-model="deleteCode" type="text" class="input join-item" placeholder="验证码" />
-            <button class="btn btn-neutral join-item" @click="handleDelete">确认删除</button>
-        </div>
-        <button v-show="deleteStatus" :class="deleteBtnClass">{{ deleteStatusText }}</button>
-    </Verification>
+    <ClientAccountLogin v-model:show="showLoginModal"></ClientAccountLogin>>
 
     <div class="p-5">
         <span class="font-mono text-xl">账号列表</span>
@@ -207,7 +156,7 @@ watch([keywordValue], async ([newKeywordValue]) => {
                         <td>{{ item.create_at }}</td>
                         <td>
                             <!-- <button @click="showDialogueModal = true" class=" btn btn-xs btn-success">查看</button> -->
-                            <button @click="handleDeleteValue(item.id, item.phone)"
+                            <button @click="handleDelete(item.id, item.phone, item.is_active)"
                                 class="btn btn-xs btn-error ml-2">删除</button>
                         </td>
                     </tr>
