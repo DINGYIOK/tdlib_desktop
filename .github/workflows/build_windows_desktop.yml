@@ -43,9 +43,9 @@ jobs:
           $root = $env:GITHUB_WORKSPACE
           $dest = "build/bin/"
           
-          Copy-Item "$root/tdlib-windows-amd64-bin/bin/* -Destination $dest -Force
+          Copy-Item "$root/tdlib-windows-amd64-bin/bin/*" -Destination $dest -Force
           
-          Write-Host "Success: All DLLs copied to $dest"
+          Write-Host 'Success: All DLLs copied to output directory'
           Get-ChildItem $dest
 
       - name: Upload Build Artifacts
