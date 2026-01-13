@@ -43,10 +43,6 @@ jobs:
           $root = $env:GITHUB_WORKSPACE
           $dest = "build/bin/"
           
-          # 1. 复制 TDLib 的 DLL
-          Copy-Item "$root/tdlib-windows-amd64-bin/bin/tdjson.dll" -Destination $dest -Force
-          
-          # 2. 复制 OpenSSL 的 DLL (根据你的报错，需要 libssl 和 libcrypto)
           Copy-Item "$root/tdlib-windows-amd64-bin/bin/* -Destination $dest -Force
           
           Write-Host "所有依赖 DLL 已复制到 $dest"
