@@ -22,11 +22,12 @@ type TelegramServiceMessage struct {
 }
 
 type TelegramService struct {
-	Phone         string         // 手机号
-	UserID        int64          // 用户 ID
-	Path          string         // 存储路径
-	DB            *gorm.DB       // 数据库连接
-	AuthStatus    bool           // 登陆状态
+	Phone         string   // 手机号
+	UserID        int64    // 用户 ID
+	Path          string   // 存储路径
+	DB            *gorm.DB // 数据库连接
+	AuthStatus    bool     // 登陆状态
+	AuthReady     chan struct{}
 	Client        *client.Client // 客户端
 	AccountStatus bool           // 账户状态 账户是否被封等等
 	//Proxy         *TelegramProxy // 代理链接
@@ -55,6 +56,7 @@ func CreateTelegramService(phone string, db *gorm.DB) *TelegramService {
 		Phone:      phone,
 		DB:         db,
 		AuthStatus: false,
+		AuthReady:  make(chan struct{}),
 		CreatedAt:  time.Now(),
 	}
 }
@@ -160,8 +162,9 @@ func (s *TelegramService) CreateClient() {
 		return
 	}
 
-	s.Client = tdlibClient        // 设置客户端
-	s.AuthStatus = true           // 设置登陆成功
+	s.Client = tdlibClient // 设置客户端
+	s.AuthStatus = true    // 设置登陆成功
+	close(s.AuthReady)
 	s.LastAccessTime = time.Now() // 设置登陆成功时间
 
 	user, err := s.Client.GetMe() // 获取个人信息
@@ -230,6 +233,14 @@ func (s *TelegramService) handleAuthStates() {
 // GetChatID 根据用户名获取ChatID
 func (s *TelegramService) GetChatID(username string) (int64, error) {
 	s.LastAccessTime = time.Now()
+
+	select {
+	case <-s.AuthReady:
+		// 已登录，安全调用 tdlib
+	case <-time.After(30 * time.Second):
+		return 0, errors.New("登陆超时")
+	}
+
 	if username == "SpamBot" {
 		// 去 Tdlib里进行查询
 		chat, err := s.Client.SearchPublicChat(&client.SearchPublicChatRequest{Username: username})
@@ -266,12 +277,11 @@ func (s *TelegramService) GetChatID(username string) (int64, error) {
 func (s *TelegramService) SendMessage(chatID int64, fullText string, offset int32, length int32, linkURL string) error {
 	s.LastAccessTime = time.Now()
 
-	for {
-		if s.Client == nil {
-			time.Sleep(2 * time.Second)
-		} else {
-			break
-		}
+	select {
+	case <-s.AuthReady:
+		// 已登录，安全调用 tdlib
+	case <-time.After(30 * time.Second):
+		return errors.New("登陆超时")
 	}
 
 	_, err := s.Client.SendMessage(&client.SendMessageRequest{
@@ -301,12 +311,11 @@ func (s *TelegramService) SendMessage(chatID int64, fullText string, offset int3
 // CloneAndLogOut 退出登陆并删除
 func (s *TelegramService) CloneAndLogOut() error {
 	s.LastAccessTime = time.Now()
-	for {
-		if s.Client == nil {
-			time.Sleep(2 * time.Second)
-		} else {
-			break
-		}
+	select {
+	case <-s.AuthReady:
+		// 已登录，安全调用 tdlib
+	case <-time.After(30 * time.Second):
+		return errors.New("登陆超时")
 	}
 
 	_, err := s.Client.LogOut() // 退出登陆并删除
@@ -425,12 +434,11 @@ func (s *TelegramService) GetCurrentAuthState() (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	for {
-		if s.Client == nil {
-			time.Sleep(2 * time.Second)
-		} else {
-			break
-		}
+	select {
+	case <-s.AuthReady:
+		// 已登录，安全调用 tdlib
+	case <-time.After(30 * time.Second):
+		return "", errors.New("登陆超时")
 	}
 
 	state, err := s.Client.GetAuthorizationState()
