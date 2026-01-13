@@ -51,17 +51,25 @@ jobs:
           Copy-Item -Path $sourceDll -Destination $destDir -Force
           # 前面的步骤保持不变...
 
-      - name: Copy runtime DLLs
+      - name: Copy runtime DLLs (TDLib & OpenSSL)
         shell: powershell
         run: |
-         $root = $env:GITHUB_WORKSPACE
-         Copy-Item "$root/tdlib-windows-amd64-bin/bin/tdjson.dll" -Destination "build/bin/"
+          $root = $env:GITHUB_WORKSPACE
+          $dest = "build/bin/"
+          
+          # 1. 复制 TDLib 的 DLL
+          Copy-Item "$root/tdlib-windows-amd64-bin/bin/tdjson.dll" -Destination $dest -Force
+          
+          # 2. 复制 OpenSSL 的 DLL (根据你的报错，需要 libssl 和 libcrypto)
+          # 注意：请确认你项目中 openssl/bin 文件夹下确实有这两个文件
+          Copy-Item "$root/openssl/bin/libssl-3-x64.dll" -Destination $dest -Force
+          Copy-Item "$root/openssl/bin/libcrypto-3-x64.dll" -Destination $dest -Force
+          
+          Write-Host "所有依赖 DLL 已复制到 $dest"
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Wails-Windows  # 下载时的压缩包名称
           path: |
-            build/bin/*.exe
-            build/bin/*.dll
-          # 这样会把 exe 和它依赖的 tdjson.dll 一起打包下载
+            build/bin/*
