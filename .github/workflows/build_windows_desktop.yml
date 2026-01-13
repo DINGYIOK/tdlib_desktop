@@ -45,7 +45,8 @@ jobs:
           
           Copy-Item "$root/tdlib-windows-amd64-bin/bin/* -Destination $dest -Force
           
-          Write-Host "所有依赖 DLL 已复制到 $dest"
+          Write-Host "Success: All DLLs copied to $dest"
+          Get-ChildItem $dest
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
