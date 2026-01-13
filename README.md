@@ -18,3 +18,4 @@ to this in your browser, and you can call your Go code from devtools.
 
 To build a redistributable, production mode package, use `wails build`.
 # tdlib_desktop
+# tdlib_desktop
