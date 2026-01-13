@@ -1951,9 +1951,6 @@ bool downcast_call(Object &obj, const T &func) {
     case inputMessagePoll::ID:
       func(static_cast<inputMessagePoll &>(obj));
       return true;
-    case inputMessageStakeDice::ID:
-      func(static_cast<inputMessageStakeDice &>(obj));
-      return true;
     case inputMessageStory::ID:
       func(static_cast<inputMessageStory &>(obj));
       return true;
@@ -2620,9 +2617,6 @@ bool downcast_call(Object &obj, const T &func) {
     case messagePoll::ID:
       func(static_cast<messagePoll &>(obj));
       return true;
-    case messageStakeDice::ID:
-      func(static_cast<messageStakeDice &>(obj));
-      return true;
     case messageStory::ID:
       func(static_cast<messageStory &>(obj));
       return true;
@@ -2773,8 +2767,8 @@ bool downcast_call(Object &obj, const T &func) {
     case messageUpgradedGiftPurchaseOffer::ID:
       func(static_cast<messageUpgradedGiftPurchaseOffer &>(obj));
       return true;
-    case messageUpgradedGiftPurchaseOfferRejected::ID:
-      func(static_cast<messageUpgradedGiftPurchaseOfferRejected &>(obj));
+    case messageUpgradedGiftPurchaseOfferDeclined::ID:
+      func(static_cast<messageUpgradedGiftPurchaseOfferDeclined &>(obj));
       return true;
     case messagePaidMessagesRefunded::ID:
       func(static_cast<messagePaidMessagesRefunded &>(obj));
@@ -4303,9 +4297,6 @@ bool downcast_call(Object &obj, const T &func) {
     case sponsoredMessages::ID:
       func(static_cast<sponsoredMessages &>(obj));
       return true;
-    case stakeDiceState::ID:
-      func(static_cast<stakeDiceState &>(obj));
-      return true;
     case starAmount::ID:
       func(static_cast<starAmount &>(obj));
       return true;
@@ -5508,9 +5499,6 @@ bool downcast_call(Object &obj, const T &func) {
       return true;
     case updateDiceEmojis::ID:
       func(static_cast<updateDiceEmojis &>(obj));
-      return true;
-    case updateStakeDiceState::ID:
-      func(static_cast<updateStakeDiceState &>(obj));
       return true;
     case updateAnimatedEmojiMessageClicked::ID:
       func(static_cast<updateAnimatedEmojiMessageClicked &>(obj));
@@ -7257,9 +7245,6 @@ bool downcast_call(Function &obj, const T &func) {
     case getSecretChat::ID:
       func(static_cast<getSecretChat &>(obj));
       return true;
-    case getStakeDiceState::ID:
-      func(static_cast<getStakeDiceState &>(obj));
-      return true;
     case getStarAdAccountUrl::ID:
       func(static_cast<getStarAdAccountUrl &>(obj));
       return true;
@@ -8483,9 +8468,6 @@ bool downcast_call(Function &obj, const T &func) {
       return true;
     case suggestUserProfilePhoto::ID:
       func(static_cast<suggestUserProfilePhoto &>(obj));
-      return true;
-    case summarizeMessage::ID:
-      func(static_cast<summarizeMessage &>(obj));
       return true;
     case synchronizeLanguagePack::ID:
       func(static_cast<synchronizeLanguagePack &>(obj));
@@ -10966,9 +10948,6 @@ bool downcast_call(InputMessageContent &obj, const T &func) {
     case inputMessagePoll::ID:
       func(static_cast<inputMessagePoll &>(obj));
       return true;
-    case inputMessageStakeDice::ID:
-      func(static_cast<inputMessageStakeDice &>(obj));
-      return true;
     case inputMessageStory::ID:
       func(static_cast<inputMessageStory &>(obj));
       return true;
@@ -11794,9 +11773,6 @@ bool downcast_call(MessageContent &obj, const T &func) {
     case messagePoll::ID:
       func(static_cast<messagePoll &>(obj));
       return true;
-    case messageStakeDice::ID:
-      func(static_cast<messageStakeDice &>(obj));
-      return true;
     case messageStory::ID:
       func(static_cast<messageStory &>(obj));
       return true;
@@ -11947,8 +11923,8 @@ bool downcast_call(MessageContent &obj, const T &func) {
     case messageUpgradedGiftPurchaseOffer::ID:
       func(static_cast<messageUpgradedGiftPurchaseOffer &>(obj));
       return true;
-    case messageUpgradedGiftPurchaseOfferRejected::ID:
-      func(static_cast<messageUpgradedGiftPurchaseOfferRejected &>(obj));
+    case messageUpgradedGiftPurchaseOfferDeclined::ID:
+      func(static_cast<messageUpgradedGiftPurchaseOfferDeclined &>(obj));
       return true;
     case messagePaidMessagesRefunded::ID:
       func(static_cast<messagePaidMessagesRefunded &>(obj));
@@ -15368,9 +15344,6 @@ bool downcast_call(Update &obj, const T &func) {
       return true;
     case updateDiceEmojis::ID:
       func(static_cast<updateDiceEmojis &>(obj));
-      return true;
-    case updateStakeDiceState::ID:
-      func(static_cast<updateStakeDiceState &>(obj));
       return true;
     case updateAnimatedEmojiMessageClicked::ID:
       func(static_cast<updateAnimatedEmojiMessageClicked &>(obj));
