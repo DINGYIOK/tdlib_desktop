@@ -48,8 +48,8 @@ jobs:
           
           # 2. 复制 OpenSSL 的 DLL (根据你的报错，需要 libssl 和 libcrypto)
           # 注意：请确认你项目中 openssl/bin 文件夹下确实有这两个文件
-          Copy-Item "$root/openssl/bin/libssl-3-x64.dll" -Destination $dest -Force
-          Copy-Item "$root/openssl/bin/libcrypto-3-x64.dll" -Destination $dest -Force
+          Copy-Item "$root/tdlib-windows-amd64-bin/bin/libssl-3-x64.dll" -Destination $dest -Force
+          Copy-Item "$root/tdlib-windows-amd64-bin/bin/libcrypto-3-x64.dll" -Destination $dest -Force
           
           Write-Host "所有依赖 DLL 已复制到 $dest"
 
