@@ -449,11 +449,9 @@ func (s *TelegramService) IsReady() bool {
 
 // Close 关闭客户端和监听器
 func (s *TelegramService) Close() error {
-	//if s.Listener == nil {
-	//	return fmt.Errorf("%d 关闭监听器错误:listener为nil", s.Phone)
-	//}
-	//s.Listener.Close()         // 先关闭监听器
-	//close(s.MessageChannel)    // 关闭消息通道
+	if s.Client == nil {
+		return nil
+	}
 	_, err := s.Client.Close() // 再关闭客户端
 	if err != nil {
 		return fmt.Errorf("%s 关闭客户端错误%w", s.Phone, err)
