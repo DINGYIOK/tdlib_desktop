@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 	"tdlib_desktop/db/model"
 	"tdlib_desktop/tools"
 	"time"
@@ -17,8 +16,6 @@ var DB *gorm.DB
 
 // InitDB 初始化数据库连接
 func InitDB(ctx context.Context) {
-	os.Getwd()
-
 	db, err := gorm.Open(sqlite.Open("db/account.db"), &gorm.Config{})
 	if err != nil {
 		panic(fmt.Sprintf("[DB] ❌初始化数据库错误: %v", err))

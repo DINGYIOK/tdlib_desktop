@@ -50,6 +50,24 @@ jobs:
           Write-Host 'Success: All DLLs copied to output directory'
           Get-ChildItem $dest
 
+      - name: Prepare DB
+        shell: powershell
+        run: |
+          $dest = "build/bin/db"
+
+          if (!(Test-Path $dest)) {
+            New-Item -ItemType Directory -Path $dest | Out-Null
+          }
+
+          $dbFile = Join-Path $dest "account.db"
+
+          if (!(Test-Path $dbFile)) {
+            New-Item -ItemType File -Path $dbFile | Out-Null
+          }
+
+          Write-Host "DB prepared at $dbFile"
+          Get-ChildItem build/bin -Recurse
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
