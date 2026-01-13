@@ -125,8 +125,9 @@ func (s *TelegramService) InitializeClient() error {
 	s.PasswordChannel = authorizer.Password
 	s.StateChannel = authorizer.State
 
-	tools.Go(fmt.Sprintf("Phone:%s 创建客户端", s.Phone), s.CreateClient)  // 创建客户端
 	tools.Go(fmt.Sprintf("Phone:%s 登陆", s.Phone), s.handleAuthStates) // 登陆
+	time.Sleep(2 * time.Second)
+	tools.Go(fmt.Sprintf("Phone:%s 创建客户端", s.Phone), s.CreateClient) // 创建客户端
 
 	// 8. 启动状态监听（类似 CliInteractor 的逻辑）
 	return nil
