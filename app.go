@@ -368,8 +368,8 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 		// 创建限流器
 		limiter := tools.NewJitterLimiter(
 			30,
-			500*time.Millisecond,
-			1000*time.Millisecond,
+			1*time.Second,
+			2*time.Second,
 		)
 
 		// 已经使用完次数的 account
