@@ -41,7 +41,7 @@ const start = async () => {
     const str2 = "bot";
     const users = messageUsers.value
         .split("\n")
-        .filter(line => line.trim() !== '' && line.toLowerCase().includes(str2.toLowerCase()));
+        .filter(line => line.trim() !== '' && !line.toLowerCase().includes(str2.toLowerCase()));
 
     if (users.length > store.accountPrivateCount) {
         console.log("超过最大可发送数量");

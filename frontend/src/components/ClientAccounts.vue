@@ -67,10 +67,6 @@ const handleSearch = async () => {
 // 确认删除
 const handleDelete = async (id: number, phone: string, is_active: boolean) => {
     try {
-        // if (is_active) {
-        //     // 先出发点登陆
-        //     await store.triggerLogin(phone);
-        // }
         await store.accountDelete(id);
         showCard.value = true;
         content.value = "删除成功✅";
