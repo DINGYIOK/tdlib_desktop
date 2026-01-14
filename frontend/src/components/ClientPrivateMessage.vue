@@ -16,16 +16,16 @@ const messageKeyWords = ref(""); // 私信关键词
 const messageKeyWordsURL = ref(""); // 私信关键词链接
 const messageUsers = ref(""); // 私信用户名列表
 
-
-
 const messageUserCount = computed(() => {
     // 和你手写的逻辑完全一致
     if (!messageUsers.value.endsWith('\n')) {
         messageUsers.value += '\n';
     }
+    const str2 = "bot";
     return messageUsers.value
         .split('\n')
-        .filter(line => line.trim() !== '').length;
+        .filter(line => line.trim() !== '' && !line.toLowerCase().includes(str2.toLowerCase()))
+        .length;
 });
 
 // 发送按钮
@@ -38,7 +38,10 @@ const start = async () => {
     if (!messageUsers.value.endsWith("\n")) {
         messageUsers.value += "\n";
     }
-    const users = messageUsers.value.split("\n").filter(line => line.trim() !== '');
+    const str2 = "bot";
+    const users = messageUsers.value
+        .split("\n")
+        .filter(line => line.trim() !== '' && line.toLowerCase().includes(str2.toLowerCase()));
 
     if (users.length > store.accountPrivateCount) {
         console.log("超过最大可发送数量");
@@ -60,12 +63,6 @@ const start = async () => {
     }
 };
 
-const messageSSE = async () => {
-    // 订阅私信消息事件
-    EventsOn("private_message", (msg: string) => {
-        accountMessageSSE.value += `${msg}\n`; // 更新响应式数据
-    });
-};
 
 
 onMounted(async () => {

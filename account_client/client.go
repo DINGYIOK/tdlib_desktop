@@ -317,7 +317,6 @@ func (s *TelegramService) CloneAndLogOut() error {
 	case <-time.After(30 * time.Second):
 		return errors.New("登陆超时")
 	}
-
 	_, err := s.Client.LogOut() // 退出登陆并删除
 	if err != nil {
 		return fmt.Errorf("客户端 Phone:%s 登出错误: %w", s.Phone, err)

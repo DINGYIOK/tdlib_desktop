@@ -46,6 +46,10 @@ export function GetAppInfoStatus() {
   return window['go']['main']['App']['GetAppInfoStatus']();
 }
 
+export function ScheduledDeletion() {
+  return window['go']['main']['App']['ScheduledDeletion']();
+}
+
 export function SetAppInfo(arg1, arg2) {
   return window['go']['main']['App']['SetAppInfo'](arg1, arg2);
 }

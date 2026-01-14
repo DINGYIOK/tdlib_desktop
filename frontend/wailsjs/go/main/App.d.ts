@@ -24,4 +24,6 @@ export function AccountSwitch(arg1:string):Promise<void>;
 
 export function GetAppInfoStatus():Promise<boolean>;
 
+export function ScheduledDeletion():Promise<void>;
+
 export function SetAppInfo(arg1:string,arg2:string):Promise<void>;

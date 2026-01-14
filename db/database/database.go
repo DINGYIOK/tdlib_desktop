@@ -54,8 +54,27 @@ func GetDB() *gorm.DB {
 	return DB
 }
 
+func resetPrivateCount(db *gorm.DB) error {
+	now := time.Now()
+	return db.Transaction(func(tx *gorm.DB) error {
+		return tx.Model(&model.TelegramClientAccount{}).
+			Where("last_reset_at IS NULL OR last_reset_at < ?", now.Add(-12*time.Hour)).
+			Updates(map[string]interface{}{
+				"private_count": 0,
+				"last_reset_at": now,
+			}).Error
+	})
+}
+
 func startResetTask(ctx context.Context, db *gorm.DB) {
 	// 每小时检查一次（可以调整为更合适的周期）
+	// ⭐ 启动即执行一次
+	if err := resetPrivateCount(db); err != nil {
+		slog.Error("启动时重置用户私信次数失败", "error", err)
+	} else {
+		slog.Info("启动时重置用户私信次数完成")
+	}
+
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
 
@@ -65,7 +84,7 @@ func startResetTask(ctx context.Context, db *gorm.DB) {
 			now := time.Now()
 			err := db.Transaction(func(tx *gorm.DB) error {
 				err := tx.Model(&model.TelegramClientAccount{}).
-					Where("last_reset_at IS NULL OR last_reset_at < ?", now.Add(-24*time.Hour)).
+					Where("last_reset_at IS NULL OR last_reset_at < ?", now.Add(-12*time.Hour)).
 					Updates(map[string]interface{}{
 						"private_count": 0,
 						"last_reset_at": now,

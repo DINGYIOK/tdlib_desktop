@@ -82,7 +82,11 @@ func (a *App) startup(ctx context.Context) {
 	a.messageChan = messageChan
 
 	// 启动实时通知
-	go a.AccountMessageSSE()
+	tools.Go("实时通知", a.AccountMessageSSE)
+
+	// 启动一个定时删除
+	tools.Go("定时删除", a.ScheduledDeletion)
+
 }
 
 // SetAppInfo 设置App信息
@@ -220,25 +224,65 @@ func (a *App) AccountDelete(id uint) error {
 		return fmt.Errorf("数据库查询客户端ID:%d 错误:%w", id, err)
 	}
 
-	// 如果存在就删除
-	service, exists := a.sm.GetService(telegramClientAccount.Phone) // 在内存中根据号码读取客户端
-	if exists {                                                     // 如果没有返回错误
-		// 退出客户端
-		err = service.CloneAndLogOut()
-		if err != nil {
-			return fmt.Errorf("删除客户端Phone:%s 错误:%w", telegramClientAccount.Phone, err)
+	tools.Go(fmt.Sprintf("删除客户端Phone:%s", telegramClientAccount.Phone), func() {
+		service, exists := a.sm.GetService(telegramClientAccount.Phone) // 在内存中根据号码读取客户端
+		if exists {                                                     // 如果没有返回错误
+			// 退出客户端
+			err = service.CloneAndLogOut()
+			if err != nil {
+				return // fmt.Errorf("删除客户端Phone:%s 错误:%w", telegramClientAccount.Phone, err)
+			}
+			// 在总管理中清理
+			a.sm.DeleteService(service.Phone)
+		} else {
+			service = account_client.CreateTelegramService(telegramClientAccount.Phone, a.db) // 创建
+			err := service.InitializeClient()                                                 // 初始化客户端
+			if err != nil {
+				return
+			}
+			err = service.CloneAndLogOut()
+			if err != nil {
+				return
+			}
 		}
-		// 在总管理中清理
-		a.sm.DeleteService(service.Phone)
-	}
+	})
 
 	// 在数据库里删除 软删除
 	err = a.db.Unscoped().Model(&model.TelegramClientAccount{}).Where("id = ?", id).Delete(&id).Error
 	if err != nil {
 		return fmt.Errorf("数据库客户端Phone:%s 错误:%w", telegramClientAccount.Phone, err)
 	}
-
 	return nil
+}
+
+// ScheduledDeletion 定时删除
+func (a *App) ScheduledDeletion() {
+	ticker := time.NewTicker(2 * time.Hour) // 每小时检查一次
+	for range ticker.C {
+		var accounts []model.TelegramClientAccount
+		err := a.db.Where("is_active = ?", false).Find(&accounts).Error
+		if err != nil {
+			slog.Error("查询被封账号错误", "err", err)
+			continue
+		}
+
+		for _, account := range accounts {
+			service := account_client.CreateTelegramService(account.Phone, a.db) // 创建
+			err := service.InitializeClient()                                    // 初始化客户端
+			if err != nil {
+				continue
+			}
+			err = service.CloneAndLogOut()
+			if err != nil {
+				continue
+			}
+			err = a.db.Unscoped().Model(&model.TelegramClientAccount{}).Where("id = ?", account.ID).Delete(&account.ID).Error
+			if err != nil {
+				continue
+			}
+		}
+	}
+
 }
 
 func pickAndInitAccount(
@@ -324,8 +368,8 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 		// 创建限流器
 		limiter := tools.NewJitterLimiter(
 			30,
-			1*time.Second,
-			2*time.Second,
+			500*time.Millisecond,
+			1000*time.Millisecond,
 		)
 
 		// 已经使用完次数的 account
@@ -467,7 +511,6 @@ func (a *App) AccountSwitch(phone string) error {
 	if exists {
 		return nil
 	}
-
 	// 进行登陆
 	service = account_client.CreateTelegramService(phone, a.db) // 创建
 	err := service.InitializeClient()                           // 初始化客户端

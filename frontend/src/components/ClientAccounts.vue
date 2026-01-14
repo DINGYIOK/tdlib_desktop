@@ -10,7 +10,6 @@ const store = useStore();
 const fieldLst = ["ID", "手机号码", "名称", "状态", "会员", "创建时间"];
 // 搜索
 const keywordValue = ref(""); // 搜索字段值
-
 const showLoginModal = ref(false); // 上传窗口展示
 
 // 翻页
@@ -34,7 +33,6 @@ onMounted(async () => {
     // await store.triggerLogin();
     // 触发机器人
     // await store.triggerStartBot();
-
 });
 // 向前翻页
 const addTurnPage = async () => {
@@ -68,12 +66,11 @@ const handleSearch = async () => {
 
 // 确认删除
 const handleDelete = async (id: number, phone: string, is_active: boolean) => {
-
     try {
-        if (is_active) {
-            // 先出发点登陆
-            await store.triggerLogin(phone);
-        }
+        // if (is_active) {
+        //     // 先出发点登陆
+        //     await store.triggerLogin(phone);
+        // }
         await store.accountDelete(id);
         showCard.value = true;
         content.value = "删除成功✅";
