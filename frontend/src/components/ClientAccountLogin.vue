@@ -8,8 +8,8 @@ const close = () => {
     phone.value = "";
     verification_code.value = "";
     password.value = "";
-    sendCodeBtnText.value = "";
-    loginBtnText.value = "";
+    sendCodeBtnText.value = "发送验证码";
+    loginBtnText.value = "登陆";
     sendCodeStatus.value = false;
     loginStatus.value = false;
     emit('update:show', false);

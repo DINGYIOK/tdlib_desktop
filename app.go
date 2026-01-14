@@ -321,7 +321,6 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 
 	tools.Go("私信接口", func() {
 		defer a.sending.Store(false)
-
 		// 创建限流器
 		limiter := tools.NewJitterLimiter(
 			30,

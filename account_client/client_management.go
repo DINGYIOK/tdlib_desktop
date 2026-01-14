@@ -8,9 +8,8 @@ import (
 )
 
 type TelegramServiceStateManager struct {
-	Services  map[string]*TelegramService // 运行运行期间登陆的账号
-	MaxActive int                         // 当前最大允许在线数
-	Mu        sync.RWMutex                // 锁
+	Services map[string]*TelegramService // 运行运行期间登陆的账号
+	Mu       sync.RWMutex                // 锁
 }
 
 var (
@@ -22,8 +21,8 @@ var (
 func InitTelegramServiceStateManager() *TelegramServiceStateManager {
 	once.Do(func() {
 		instance = &TelegramServiceStateManager{
-			Services:  make(map[string]*TelegramService),
-			MaxActive: 50, // 同时支持50个设备
+			Services: make(map[string]*TelegramService),
+			//MaxActive: 50, // 同时支持50个设备
 		}
 		tools.Go("客户端管理 AutoGC", instance.AutoGC) // 初始化 启动清理
 	})
