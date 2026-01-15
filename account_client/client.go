@@ -245,6 +245,7 @@ func (s *TelegramService) GetChatID(username string) (int64, error) {
 		// 去 Tdlib里进行查询
 		chat, err := s.Client.SearchPublicChat(&client.SearchPublicChatRequest{Username: username})
 		if err != nil {
+			s.DB.Model(&model.TelegramClientAccount{}).Where("phone = ?", s.Phone).Updates(map[string]any{"is_active": false}) // 更新为false
 			return 0, fmt.Errorf("搜索SpamBot机器人ID:%s 错误: %w", username, err)
 		}
 		return chat.Id, nil

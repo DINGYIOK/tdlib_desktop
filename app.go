@@ -367,7 +367,7 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 		defer a.sending.Store(false)
 		// 创建限流器
 		limiter := tools.NewJitterLimiter(
-			30,
+			35,
 			1*time.Second,
 			2*time.Second,
 		)
@@ -409,6 +409,10 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 				if err != nil {
 					a.messageChan <- fmt.Sprintf("Phone:%s 获取SpamBot机器人ChatID失败❌", currentService.Phone)
 					slog.Error(fmt.Sprintf("客户端Phone:%s SpamBot机器人的ChatID错误:%s", currentService.Phone, err.Error()))
+
+					_ = currentService.Close()
+					currentAccount = nil
+					currentService = nil
 					continue
 				}
 				// 先去触发机器人验证
