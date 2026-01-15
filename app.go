@@ -51,7 +51,9 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
 	f, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-
+	if err != nil {
+		panic(fmt.Errorf("打开日志文件错误:%s", err.Error()))
+	}
 	// TODO writer  os.Stdout
 	slog.SetDefault(slog.New(tint.NewHandler(f, &tint.Options{
 		AddSource:   true, // 记录日志位置
@@ -65,7 +67,7 @@ func (a *App) startup(ctx context.Context) {
 	db := database.GetDB()
 	a.db = db
 	// 初始化信息
-	err := a.db.Model(&model.TelegramClientSettings{}).
+	err = a.db.Model(&model.TelegramClientSettings{}).
 		Where("key = ?", "account_private_count").
 		Attrs(model.TelegramClientSettings{
 			Key:         "account_private_count",
