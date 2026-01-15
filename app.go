@@ -50,8 +50,10 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
+	f, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+
 	// TODO writer  os.Stdout
-	slog.SetDefault(slog.New(tint.NewHandler(os.Stdout, &tint.Options{
+	slog.SetDefault(slog.New(tint.NewHandler(f, &tint.Options{
 		AddSource:   true, // 记录日志位置
 		Level:       slog.LevelDebug,
 		ReplaceAttr: nil,
