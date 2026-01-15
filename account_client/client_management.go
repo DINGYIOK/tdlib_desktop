@@ -37,11 +37,6 @@ func (t *TelegramServiceStateManager) AutoGC() {
 		for phone, svc := range t.Services {
 			// 策略 1: 清理掉超过 15 分钟仍未登录成功的“僵尸”实例
 			if !svc.AuthStatus && time.Since(svc.CreatedAt) > 15*time.Minute {
-				slog.Info("清理超时的未登录实例", "phone", phone)
-				err := svc.Close()
-				if err != nil {
-					slog.Error("清理超时的未登录实例错误", "error", err)
-				}
 				delete(t.Services, phone)
 				continue
 			}

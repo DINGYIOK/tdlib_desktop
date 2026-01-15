@@ -58,7 +58,7 @@ func resetPrivateCount(db *gorm.DB) error {
 	now := time.Now()
 	return db.Transaction(func(tx *gorm.DB) error {
 		return tx.Model(&model.TelegramClientAccount{}).
-			Where("last_reset_at IS NULL OR last_reset_at < ?", now.Add(-12*time.Hour)).
+			Where("last_reset_at IS NULL OR last_reset_at < ?", now.Add(-20*time.Hour)).
 			Updates(map[string]interface{}{
 				"private_count": 0,
 				"last_reset_at": now,
@@ -75,7 +75,7 @@ func startResetTask(ctx context.Context, db *gorm.DB) {
 		slog.Info("启动时重置用户私信次数完成")
 	}
 
-	ticker := time.NewTicker(10 * time.Minute)
+	ticker := time.NewTicker(20 * time.Minute)
 	defer ticker.Stop()
 
 	for {
@@ -84,7 +84,7 @@ func startResetTask(ctx context.Context, db *gorm.DB) {
 			now := time.Now()
 			err := db.Transaction(func(tx *gorm.DB) error {
 				err := tx.Model(&model.TelegramClientAccount{}).
-					Where("last_reset_at IS NULL OR last_reset_at < ?", now.Add(-12*time.Hour)).
+					Where("last_reset_at IS NULL OR last_reset_at < ?", now.Add(-20*time.Hour)).
 					Updates(map[string]interface{}{
 						"private_count": 0,
 						"last_reset_at": now,
