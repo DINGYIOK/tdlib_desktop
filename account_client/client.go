@@ -461,6 +461,7 @@ func (s *TelegramService) Close() error {
 	if s.Client == nil {
 		return nil
 	}
+
 	_, err := s.Client.Close() // 再关闭客户端
 	if err != nil {
 		return fmt.Errorf("%s 关闭客户端错误%w", s.Phone, err)

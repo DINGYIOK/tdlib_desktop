@@ -49,9 +49,11 @@ func (t *TelegramServiceStateManager) AutoGC() {
 			// 策略 2: 清理掉闲置过久的已登录实例
 			if time.Since(svc.LastAccessTime) > 30*time.Minute {
 				slog.Info("自动回收闲置账号", "phone", phone)
-				err := svc.Close()
-				if err != nil {
-					slog.Error("自动回收闲置账号错误", "error", err)
+				if svc.AuthStatus {
+					err := svc.Close()
+					if err != nil {
+						slog.Error("自动回收闲置账号错误", "error", err)
+					}
 				}
 				delete(t.Services, phone)
 			}

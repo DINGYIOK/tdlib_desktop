@@ -415,6 +415,7 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 					slog.Error(fmt.Sprintf("客户端Phone:%s SpamBot机器人的ChatID错误:%s", currentService.Phone, err.Error()))
 
 					_ = currentService.Close()
+					currentService.AuthStatus = false
 					currentAccount = nil
 					currentService = nil
 					continue
@@ -477,6 +478,7 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 				switchAccount = false
 				if currentService != nil {
 					_ = currentService.Close()
+					currentService.AuthStatus = false
 				}
 
 				acc, svc, err := pickAndInitAccount(&accounts, a.db, a.sm)
@@ -495,6 +497,7 @@ func (a *App) AccountPrivateMessage(fullText string, keyword string, linkURL str
 			if currentAccountPrivateCount >= accountPrivateCount {
 				if currentService != nil {
 					_ = currentService.Close()
+					currentService.AuthStatus = false
 				}
 				acc, svc, err := pickAndInitAccount(&accounts, a.db, a.sm)
 				if err != nil {
