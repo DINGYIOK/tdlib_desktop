@@ -3,7 +3,6 @@ package tools
 import (
 	"context"
 	"log/slog"
-	"os"
 	"runtime/debug"
 	"time"
 
@@ -27,12 +26,7 @@ func Go(name string, fn func()) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				slog.Error("Panic ❌",
-					"Goroutine", name,
-					"panic", r,
-					"stack", string(debug.Stack()),
-				)
-				os.Exit(1)
+				slog.Error("严重错误 ❌", "协程名称", name, "Panic错误", r, "Panic堆栈", string(debug.Stack()))
 			}
 		}()
 		fn()

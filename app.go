@@ -257,7 +257,7 @@ func (a *App) AccountDelete(id uint) error {
 
 // ScheduledDeletion 定时删除
 func (a *App) ScheduledDeletion() {
-	ticker := time.NewTicker(2 * time.Hour) // 每小时检查一次
+	ticker := time.NewTicker(2 * time.Hour) // 每2小时检查一次
 	for range ticker.C {
 		var accounts []model.TelegramClientAccount
 		err := a.db.Where("is_active = ?", false).Find(&accounts).Error
