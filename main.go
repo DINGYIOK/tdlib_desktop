@@ -28,9 +28,9 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
-		//Debug: options.Debug{
-		//	OpenInspectorOnStartup: true,
-		//},
+		Debug: options.Debug{
+			OpenInspectorOnStartup: true,
+		},
 	})
 
 	if err != nil {
@@ -45,6 +45,7 @@ func main() {
 */
 
 /*
+export PATH=$PATH:~/go/bin
 
 export CGO_ENABLED=1
 export OPENSSL_PREFIX=$(brew --prefix openssl@3)
